@@ -1,0 +1,114 @@
+basePath: /
+definitions:
+  persistence.Project:
+    properties:
+      projectID:
+        type: string
+      projectName:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/persistence.User'
+        type: array
+    type: object
+  persistence.User:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/persistence.Project'
+        type: array
+      userID:
+        type: string
+      userMail:
+        type: string
+    type: object
+  server.ProjectListWrapper:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/persistence.Project'
+        type: array
+      userID:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+  title: Project handler API for the Krini project
+  version: "0.1"
+paths:
+  /projects:
+    get:
+      parameters:
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.ProjectListWrapper'
+      summary: Lists all projects of a user
+  /projects/adduser:
+    post:
+      parameters:
+      - description: project id
+        in: query
+        name: projectid
+        required: true
+        type: string
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: Lists all projects of a user
+  /projects/create:
+    post:
+      parameters:
+      - description: project name
+        in: query
+        name: projectname
+        required: true
+        type: string
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Lists all projects of a user
+  /users/create:
+    post:
+      parameters:
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      - description: user email address
+        in: query
+        name: usermail
+        required: true
+        type: string
+      summary: Creates a new user if none exists
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: X-API-Key
+    type: apiKey
+swagger: "2.0"

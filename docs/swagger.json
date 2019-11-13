@@ -1,0 +1,174 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Project handler API for the Krini project",
+        "contact": {},
+        "license": {},
+        "version": "0.1"
+    },
+    "basePath": "/",
+    "paths": {
+        "/projects": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Lists all projects of a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "userid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.ProjectListWrapper"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/adduser": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Lists all projects of a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project id",
+                        "name": "projectid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "userid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/projects/create": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Lists all projects of a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project name",
+                        "name": "projectname",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "userid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/create": {
+            "post": {
+                "summary": "Creates a new user if none exists",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "userid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "user email address",
+                        "name": "usermail",
+                        "in": "query",
+                        "required": true
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "persistence.Project": {
+            "type": "object",
+            "properties": {
+                "projectID": {
+                    "type": "string"
+                },
+                "projectName": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/persistence.User"
+                    }
+                }
+            }
+        },
+        "persistence.User": {
+            "type": "object",
+            "properties": {
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/persistence.Project"
+                    }
+                },
+                "userID": {
+                    "type": "string"
+                },
+                "userMail": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.ProjectListWrapper": {
+            "type": "object",
+            "properties": {
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/persistence.Project"
+                    }
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "X-API-Key",
+            "in": "header"
+        }
+    }
+}
