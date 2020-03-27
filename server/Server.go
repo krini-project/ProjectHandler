@@ -3,11 +3,10 @@ package server
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"path"
 
 	"github.com/krini-project/ProjectHandler/persistence"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,6 +62,6 @@ func (server *Server) addHandlers() {
 }
 
 func (server *Server) handleSwagger() {
-	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
-	server.Engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+	fs := http.FileSystem(http.Dir("/home/marius/Code/GA4GH/ProjectHandler/www/swagger-ui"))
+	server.Engine.StaticFS("/swagger-ui/", fs)
 }
