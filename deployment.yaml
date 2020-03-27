@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: projecthandlerdeployment
+  labels:
+    app: projecthandler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: projecthandler
+  template:
+    metadata:
+      labels:
+        app: projecthandler
+    spec:
+      imagePullSecrets:
+        - name: pipeline-docker-registry
+      containers:
+      - name: projecthandler
+        image: ${CICD_IMAGE}:${CICD_EXECUTION_SEQUENCE}
+        ports:
+        - containerPort: 8080
