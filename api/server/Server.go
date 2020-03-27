@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"path"
 
+	"github.com/krini-project/ProjectHandler/api/endpoints"
+	middleware "github.com/krini-project/ProjectHandler/api/middlware"
 	"github.com/krini-project/ProjectHandler/persistence"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +17,7 @@ import (
 // Server base struct for the endpoint server
 type Server struct {
 	Engine  *gin.Engine
-	Handler *EndpointHandler
+	Handler *endpoints.EndpointHandler
 }
 
 // Run Starts the endpoint server
@@ -34,13 +37,13 @@ func (server *Server) Run(tlsPath string, port int) {
 // Init Init method for the API endpoint to create all required handlers and the swagger endpoint
 // @title Project handler API for the Krini project
 // @version 0.1
-// @basePath /
+// @basePath /v1
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name X-API-Key
 func (server *Server) Init(databaseHandler *persistence.DatabaseHandler, port int) {
 	server.Engine = gin.Default()
-	server.Handler = &EndpointHandler{
+	server.Handler = &endpoints.EndpointHandler{
 		DatabaseHandler: databaseHandler,
 	}
 
@@ -50,15 +53,24 @@ func (server *Server) Init(databaseHandler *persistence.DatabaseHandler, port in
 	if !(port > 1 && port < 65535) {
 		log.Fatalln(fmt.Sprintf("Could not start server, %v is not a valid port!", port))
 	}
+
 	server.Engine.Run(fmt.Sprintf(":%v", port))
 
 }
 
 func (server *Server) addHandlers() {
-	server.Engine.GET("/projects", server.Handler.ListUserProjects)
-	server.Engine.POST("/projects/adduser", server.Handler.AddUserToProject)
-	server.Engine.POST("/projects/create", server.Handler.CreateProject)
-	server.Engine.POST("/users/create", server.Handler.CreateUserIfNotExist)
+	apiKey := os.Getenv("APIKey")
+	if apiKey == "" {
+		apiKey = "test123"
+	}
+
+	v1Group := server.Engine.Group("/v1")
+	v1Group.Use(middleware.ApiKeyMiddleware(apiKey))
+
+	v1Group.Handle("GET", "/projects", server.Handler.ListUserProjects)
+	v1Group.Handle("POST", "/projects/adduser", server.Handler.AddUserToProject)
+	v1Group.Handle("POST", "/projects/create", server.Handler.CreateProject)
+	v1Group.Handle("POST", "/users/create", server.Handler.CreateUserIfNotExist)
 }
 
 func (server *Server) handleSwagger() {

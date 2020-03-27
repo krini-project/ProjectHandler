@@ -6,10 +6,15 @@
         "license": {},
         "version": "0.1"
     },
-    "basePath": "/",
+    "basePath": "/v1",
     "paths": {
         "/projects": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -27,7 +32,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.ProjectListWrapper"
+                            "$ref": "#/definitions/models.ProjectListWrapper"
                         }
                     }
                 }
@@ -35,6 +40,11 @@
         },
         "/projects/adduser": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -62,6 +72,11 @@
         },
         "/projects/create": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -94,6 +109,11 @@
         },
         "/users/create": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "summary": "Creates a new user if none exists",
                 "parameters": [
                     {
@@ -115,6 +135,20 @@
         }
     },
     "definitions": {
+        "models.ProjectListWrapper": {
+            "type": "object",
+            "properties": {
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/persistence.Project"
+                    }
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
         "persistence.Project": {
             "type": "object",
             "properties": {
@@ -145,20 +179,6 @@
                     "type": "string"
                 },
                 "userMail": {
-                    "type": "string"
-                }
-            }
-        },
-        "server.ProjectListWrapper": {
-            "type": "object",
-            "properties": {
-                "projects": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/persistence.Project"
-                    }
-                },
-                "userID": {
                     "type": "string"
                 }
             }

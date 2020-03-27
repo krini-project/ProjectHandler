@@ -1,5 +1,14 @@
-basePath: /
+basePath: /v1
 definitions:
+  models.ProjectListWrapper:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/persistence.Project'
+        type: array
+      userID:
+        type: string
+    type: object
   persistence.Project:
     properties:
       projectID:
@@ -22,15 +31,6 @@ definitions:
       userMail:
         type: string
     type: object
-  server.ProjectListWrapper:
-    properties:
-      projects:
-        items:
-          $ref: '#/definitions/persistence.Project'
-        type: array
-      userID:
-        type: string
-    type: object
 info:
   contact: {}
   license: {}
@@ -51,7 +51,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.ProjectListWrapper'
+            $ref: '#/definitions/models.ProjectListWrapper'
+      security:
+      - ApiKeyAuth: []
       summary: Lists all projects of a user
   /projects/adduser:
     post:
@@ -70,6 +72,8 @@ paths:
       - application/json
       responses:
         "200": {}
+      security:
+      - ApiKeyAuth: []
       summary: Lists all projects of a user
   /projects/create:
     post:
@@ -91,6 +95,8 @@ paths:
           description: ok
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Lists all projects of a user
   /users/create:
     post:
@@ -105,6 +111,8 @@ paths:
         name: usermail
         required: true
         type: string
+      security:
+      - ApiKeyAuth: []
       summary: Creates a new user if none exists
 securityDefinitions:
   ApiKeyAuth:

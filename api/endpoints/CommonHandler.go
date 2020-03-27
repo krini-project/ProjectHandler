@@ -1,10 +1,11 @@
-package server
+package endpoints
 
 import (
 	"errors"
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/krini-project/ProjectHandler/models"
 	"github.com/krini-project/ProjectHandler/persistence"
 )
 
@@ -16,23 +17,24 @@ type EndpointHandler struct {
 // ListUserProjects Lists all projects of a user
 // @Summary Lists all projects of a user
 // @Produce  json
+// @Security ApiKeyAuth
 // @Param   userid     query    string     true        "user id"
-// @Success 200 {object} server.ProjectListWrapper
+// @Success 200 {object} models.ProjectListWrapper
 // @Router /projects [get]
-func (server *EndpointHandler) ListUserProjects(c *gin.Context) {
+func (hander *EndpointHandler) ListUserProjects(c *gin.Context) {
 	userID := c.Query("userid")
 	if userID == "" {
 		c.AbortWithError(400, errors.New("user id required"))
 		return
 	}
-	projects, err := server.DatabaseHandler.ListProjectsByUsers(userID)
+	projects, err := hander.DatabaseHandler.ListProjectsByUsers(userID)
 	if err != nil {
 		log.Println(err.Error())
 		c.AbortWithError(400, errors.New("Error while reading user projects from database"))
 		return
 	}
 
-	wrapper := ProjectListWrapper{
+	wrapper := models.ProjectListWrapper{
 		Projects: projects,
 		UserID:   userID,
 	}
@@ -43,11 +45,12 @@ func (server *EndpointHandler) ListUserProjects(c *gin.Context) {
 // AddUserToProject Adds a user to a project
 // @Summary Lists all projects of a user
 // @Produce  json
+// @Security ApiKeyAuth
 // @Param   projectid     query    string     true        "project id"
 // @Param   userid     query    string     true        "user id"
 // @Success 200
 // @Router /projects/adduser [post]
-func (server *EndpointHandler) AddUserToProject(c *gin.Context) {
+func (hander *EndpointHandler) AddUserToProject(c *gin.Context) {
 	userID := c.Query("userid")
 	projectid := c.Query("projectid")
 	if userID == "" {
@@ -60,7 +63,7 @@ func (server *EndpointHandler) AddUserToProject(c *gin.Context) {
 		return
 	}
 
-	err := server.DatabaseHandler.AddUserToProject(projectid, userID)
+	err := hander.DatabaseHandler.AddUserToProject(projectid, userID)
 	if err != nil {
 		log.Println(err.Error())
 		c.AbortWithError(400, errors.New("Error while reading user projects from database"))
@@ -73,11 +76,12 @@ func (server *EndpointHandler) AddUserToProject(c *gin.Context) {
 // CreateProject Creates a new project
 // @Summary Lists all projects of a user
 // @Produce  json
+// @Security ApiKeyAuth
 // @Param   projectname     query    string     true        "project name"
 // @Param   userid     query    string     true        "user id"
 // @Success 200 {string} string	"ok"
 // @Router /projects/create [post]
-func (server *EndpointHandler) CreateProject(c *gin.Context) {
+func (hander *EndpointHandler) CreateProject(c *gin.Context) {
 	userID := c.Query("userid")
 	projectName := c.Query("projectname")
 	if userID == "" {
@@ -90,7 +94,7 @@ func (server *EndpointHandler) CreateProject(c *gin.Context) {
 		return
 	}
 
-	projectID, err := server.DatabaseHandler.CreateNewProject(projectName, userID)
+	projectID, err := hander.DatabaseHandler.CreateNewProject(projectName, userID)
 	if err != nil {
 		log.Println(err.Error())
 		c.AbortWithError(400, errors.New("Error while reading user projects from database"))
@@ -102,10 +106,11 @@ func (server *EndpointHandler) CreateProject(c *gin.Context) {
 
 // CreateUserIfNotExist Creates a new user if a user with the given id does not exist
 // @Summary Creates a new user if none exists
+// @Security ApiKeyAuth
 // @Param   userid     query    string     true        "user id"
 // @Param   usermail     query    string     true        "user email address"
 // @Router /users/create [post]
-func (server *EndpointHandler) CreateUserIfNotExist(c *gin.Context) {
+func (hander *EndpointHandler) CreateUserIfNotExist(c *gin.Context) {
 	userID := c.Query("userid")
 	usermail := c.Query("usermail")
 	if userID == "" {
@@ -113,7 +118,7 @@ func (server *EndpointHandler) CreateUserIfNotExist(c *gin.Context) {
 		return
 	}
 
-	err := server.DatabaseHandler.CreateNewUser(userID, usermail)
+	err := hander.DatabaseHandler.CreateNewUser(userID, usermail)
 	if err != nil {
 		log.Println(err.Error())
 		c.AbortWithError(400, errors.New("Error while reading user projects from database"))

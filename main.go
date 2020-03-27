@@ -6,9 +6,9 @@ import (
 
 	"github.com/jessevdk/go-flags"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/krini-project/ProjectHandler/api/server"
 	_ "github.com/krini-project/ProjectHandler/docs"
 	"github.com/krini-project/ProjectHandler/persistence"
-	"github.com/krini-project/ProjectHandler/server"
 )
 
 var opts struct {
