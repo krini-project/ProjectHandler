@@ -39,7 +39,7 @@ spec:
     app: projecthandler
   ports:
     - protocol: TCP
-      port: 80
+      port: 8080
       targetPort: 80
 ---
 apiVersion: extensions/v1beta1
@@ -47,9 +47,6 @@ kind: Ingress
 metadata:
   name: testingress
   namespace: cwlab-elixir-develop 
-  annotations:
-    # add an annotation indicating the issuer to use.
-    cert-manager.io/issuer: letsencrypt-prod
 spec:
   rules:
   - host: projecthandler.krini.ingress.demo.experimental.rancher.computational.bio
