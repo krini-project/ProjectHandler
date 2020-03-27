@@ -8,7 +8,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' .
 FROM scratch
 COPY --from=builder /ProjectHandler .
 
-RUN mkdir /static
 COPY www /static
 
 ENTRYPOINT [ "./ProjectHandler" ]
