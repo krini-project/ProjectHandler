@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: projecthandlerdeployment
+  namespace: cwlab-elixir-develop
   labels:
     app: projecthandler
 spec:
