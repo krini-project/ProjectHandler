@@ -4,7 +4,7 @@
   - publishImageConfig:
       dockerfilePath: ./Dockerfile
       buildContext: .
-      tag: krini/projecthandler:${CICD_EXECUTION_SEQUENCE}
+      tag: krini/projecthandler:0.1-${CICD_EXECUTION_SEQUENCE}
   when:
     branch:
       include:

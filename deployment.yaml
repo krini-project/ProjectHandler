@@ -18,6 +18,6 @@ spec:
         - name: pipeline-docker-registry
       containers:
       - name: projecthandler
-        image: ${CICD_IMAGE}:${CICD_EXECUTION_SEQUENCE}
+        image: ${CICD_REGISTRY}/krini/projecthandler:0.1-${CICD_EXECUTION_SEQUENCE}
         ports:
         - containerPort: 8080
