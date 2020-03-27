@@ -56,7 +56,7 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: projecthandlerService
+          serviceName: projecthandlerservice
           servicePort: 80
         path: /
   tls: # < placing a host in the TLS config will indicate a certificate should be created
