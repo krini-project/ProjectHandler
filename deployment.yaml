@@ -23,6 +23,8 @@ spec:
         ports:
         - containerPort: 8080
         env:
+          - name: swaggerStaticPath
+            value: "/static/www/swagger-ui"
           - name: APIKey
             valueFrom:
               secretKeyRef:
@@ -39,8 +41,8 @@ spec:
     app: projecthandler
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 80
+      port: 80
+      targetPort: 8080
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress

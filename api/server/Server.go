@@ -74,6 +74,11 @@ func (server *Server) addHandlers() {
 }
 
 func (server *Server) handleSwagger() {
-	fs := http.FileSystem(http.Dir("/home/marius/Code/GA4GH/ProjectHandler/www/swagger-ui"))
+	swaggerStaticPath := "/home/marius/Code/GA4GH/ProjectHandler/www/swagger-ui"
+	if os.Getenv("swaggerStaticPath") != "" {
+		swaggerStaticPath = os.Getenv("swaggerStaticPath")
+	}
+
+	fs := http.FileSystem(http.Dir(swaggerStaticPath))
 	server.Engine.StaticFS("/swagger-ui/", fs)
 }
