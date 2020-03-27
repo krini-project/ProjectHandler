@@ -24,7 +24,7 @@ spec:
         - containerPort: 8080
         env:
           - name: swaggerStaticPath
-            value: "/static/www/swagger-ui"
+            value: "/www/swagger-ui"
           - name: APIKey
             valueFrom:
               secretKeyRef:
