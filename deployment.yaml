@@ -63,4 +63,4 @@ spec:
   tls: # < placing a host in the TLS config will indicate a certificate should be created
   - hosts:
     - projecthandler.krini.ingress.demo.experimental.rancher.computational.bio
-    secretName: container-test-cert # < cert-manager will store the created certificate in this secret.
+    secretName: letsencrypt-prod-private-key # < cert-manager will store the created certificate in this secret.
