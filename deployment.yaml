@@ -48,7 +48,9 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: testingress
-  namespace: cwlab-elixir-develop 
+  namespace: cwlab-elixir-develop
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
   - host: projecthandler.krini.ingress.demo.experimental.rancher.computational.bio
