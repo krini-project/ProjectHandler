@@ -49,6 +49,9 @@ func (server *Server) Init(databaseHandler *persistence.DatabaseHandler, port in
 
 	server.handleSwagger()
 	server.addHandlers()
+	if !server.Handler.DatabaseHandler.Database.HasTable(&persistence.Right{}) {
+		server.Handler.DatabaseHandler.CreateDefaultRights()
+	}
 
 	if !(port > 1 && port < 65535) {
 		log.Fatalln(fmt.Sprintf("Could not start server, %v is not a valid port!", port))

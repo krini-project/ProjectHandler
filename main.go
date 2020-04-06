@@ -17,6 +17,8 @@ var opts struct {
 }
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	databaseHandler := persistence.DatabaseHandler{}
 
 	_, err := flags.Parse(&opts)
