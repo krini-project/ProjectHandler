@@ -2,13 +2,13 @@ package main
 
 import (
 	"log"
-	"path"
 
 	"github.com/jessevdk/go-flags"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/krini-project/ProjectHandler/api/server"
 	_ "github.com/krini-project/ProjectHandler/docs"
 	"github.com/krini-project/ProjectHandler/persistence"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var opts struct {
@@ -28,7 +28,9 @@ func main() {
 	}
 
 	//sqliteTmpFileName := uuid.New().String()
-	databaseHandler.InitSQLite(path.Join("/tmp", "sqliteTmpFileName"))
+	databaseHandler.InitSQL()
+
+	databaseHandler.CreateDefaultRoles()
 
 	server := server.Server{}
 	server.Init(&databaseHandler, opts.Port)

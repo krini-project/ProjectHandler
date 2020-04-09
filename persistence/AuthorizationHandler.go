@@ -1,6 +1,12 @@
 package persistence
 
-import "log"
+import (
+	"context"
+	"log"
+
+	"github.com/krini-project/ProjectHandler/models"
+	"github.com/volatiletech/sqlboiler/boil"
+)
 
 const AddUser = "add_users"
 const RawDataAccess = "raw_data_access"
@@ -15,81 +21,61 @@ const AdminRole = "admin"
 const MaintainerRole = "maintainer"
 const InternRole = "intern"
 
-var defaultRights = []*Right{
-	&Right{
-		Name: AddUser,
-	},
-	&Right{
-		Name: RawDataAccess,
-	},
-	&Right{
-		Name: AddDatasets,
-	},
-	&Right{
-		Name: AddWorkflows,
-	},
-	&Right{
-		Name: SetWESEndpoints,
-	},
-	&Right{
-		Name: ExecuteWorkflow,
-	},
-}
+var defaultRights []string
+var defaultRoles = make(map[string][]string)
 
-var defaultRoles = []*Role{
-	&Role{
-		Name:   AdminRole,
-		Rights: defaultRights,
-	},
-	&Role{
-		Name: MaintainerRole,
-		Rights: []*Right{
-			&Right{
-				Name: RawDataAccess,
-			},
-			&Right{
-				Name: AddDatasets,
-			},
-			&Right{
-				Name: AddWorkflows,
-			},
-			&Right{
-				Name: SetWESEndpoints,
-			},
-			&Right{
-				Name: ExecuteWorkflow,
-			},
-		},
-	},
-	&Role{
-		Name: InternRole,
-		Rights: []*Right{
-			&Right{
-				Name: ExecuteWorkflow,
-			},
-		},
-	},
-}
+func (handler *DatabaseHandler) CreateDefaultRoles() error {
+	defaultRoles[AdminRole] = []string{AddUser, RawDataAccess, AddDatasets, AddWorkflows, SetWESEndpoints, ExecuteWorkflow}
+	defaultRoles[MaintainerRole] = []string{RawDataAccess, AddDatasets, AddDatasets, SetWESEndpoints, ExecuteWorkflow}
+	defaultRoles[InternRole] = []string{ExecuteWorkflow}
 
-func (handler *DatabaseHandler) CreateDefaultRights() error {
+	defaultRights := []string{AddUser, RawDataAccess, AddDatasets, AddWorkflows, SetWESEndpoints, ExecuteWorkflow}
+
 	for _, right := range defaultRights {
-		if err := handler.Database.Create(right).Error; err != nil {
+		righStruct := models.Right{
+			RightName: right,
+		}
+
+		err := righStruct.Insert(context.TODO(), handler.DB, boil.Infer())
+		if err != nil {
 			log.Println(err.Error())
-			return err
 		}
 	}
 
-	for _, role := range defaultRoles {
-		for _, roleRight := range role.Rights {
-			if err := handler.Database.First(roleRight).Error; err != nil {
-				log.Println(err.Error())
-				return err
-			}
+	rightSlice, err := models.Rights().All(context.TODO(), handler.DB)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	rightMap := make(map[string]*models.Right)
+
+	for _, right := range rightSlice {
+		rightMap[right.RightName] = right
+	}
+
+	for role := range defaultRoles {
+		roleStruct := models.Role{
+			RoleName: role,
 		}
-		if err := handler.Database.Create(role).Error; err != nil {
+
+		err := roleStruct.Insert(context.TODO(), handler.DB, boil.Infer())
+		if err != nil {
 			log.Println(err.Error())
-			return err
 		}
+	}
+
+	roleSlice, err := models.Roles().All(context.TODO(), handler.DB)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	for _, role := range roleSlice {
+		roleRights := defaultRoles[role.RoleName]
+		var roleRightsStruct []*models.Right
+		for _, roleRight := range roleRights {
+			roleRightsStruct = append(roleRightsStruct, rightMap[roleRight])
+		}
+		role.AddRightsRightIDRights(context.TODO(), handler.DB, false, roleRightsStruct...)
 	}
 
 	return nil

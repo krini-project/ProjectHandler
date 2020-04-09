@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/krini-project/ProjectHandler/api/endpoints"
 	middleware "github.com/krini-project/ProjectHandler/api/middlware"
@@ -18,20 +17,6 @@ import (
 type Server struct {
 	Engine  *gin.Engine
 	Handler *endpoints.EndpointHandler
-}
-
-// Run Starts the endpoint server
-// tlsPath Path to the tls cert and key file
-// port Port for the server to listen on
-// TODO: Currently only for self-signed certs (testing)
-func (server *Server) Run(tlsPath string, port int) {
-	certFile := path.Join(tlsPath, "certificate.crt")
-	keyFile := path.Join(tlsPath, "certificate.key")
-
-	err := server.Engine.RunTLS(fmt.Sprintf(":%v", port), certFile, keyFile)
-	if err != nil {
-		log.Println(err.Error())
-	}
 }
 
 // Init Init method for the API endpoint to create all required handlers and the swagger endpoint
@@ -49,9 +34,6 @@ func (server *Server) Init(databaseHandler *persistence.DatabaseHandler, port in
 
 	server.handleSwagger()
 	server.addHandlers()
-	if !server.Handler.DatabaseHandler.Database.HasTable(&persistence.Right{}) {
-		server.Handler.DatabaseHandler.CreateDefaultRights()
-	}
 
 	if !(port > 1 && port < 65535) {
 		log.Fatalln(fmt.Sprintf("Could not start server, %v is not a valid port!", port))
@@ -73,6 +55,14 @@ func (server *Server) addHandlers() {
 	v1Group.Handle("GET", "/projects", server.Handler.ListUserProjects)
 	v1Group.Handle("POST", "/projects/adduser", server.Handler.AddUserToProject)
 	v1Group.Handle("POST", "/projects/create", server.Handler.CreateProject)
+
+	v1Group.Handle("POST", "/projects/workflows/add", server.Handler.AddWorkflow)
+	v1Group.Handle("GET", "/projects/workflows/get", server.Handler.GetWorkflow)
+	v1Group.Handle("GET", "/projects/workflows/list", server.Handler.ListWorkflows)
+
+	v1Group.Handle("POST", "/projects/wes/add", server.Handler.AddWESEndpoint)
+	v1Group.Handle("GET", "/projects/wes/list", server.Handler.ListWESEndpoints)
+
 	v1Group.Handle("POST", "/users/create", server.Handler.CreateUserIfNotExist)
 }
 

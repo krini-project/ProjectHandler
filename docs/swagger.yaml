@@ -1,34 +1,34 @@
 basePath: /v1
 definitions:
-  models.ProjectListWrapper:
+  models.Project:
     properties:
-      projects:
-        items:
-          $ref: '#/definitions/persistence.Project'
-        type: array
-      userID:
+      ProjectID:
+        type: string
+      ProjectName:
         type: string
     type: object
-  persistence.Project:
+  models.WESEndpoint:
     properties:
-      projectID:
+      ID:
+        type: integer
+      Link:
         type: string
-      projectName:
+      Name:
         type: string
-      users:
-        items:
-          $ref: '#/definitions/persistence.User'
-        type: array
+      Owner_id:
+        type: string
     type: object
-  persistence.User:
+  models.Workflow:
     properties:
-      projects:
-        items:
-          $ref: '#/definitions/persistence.Project'
-        type: array
-      userID:
+      Link:
         type: string
-      userMail:
+      Project_id:
+        type: string
+      Version:
+        type: string
+      WorkflowID:
+        type: integer
+      Workflowname:
         type: string
     type: object
 info:
@@ -51,7 +51,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ProjectListWrapper'
+            items:
+              $ref: '#/definitions/models.Project'
+            type: array
       security:
       - ApiKeyAuth: []
       summary: Lists all projects of a user
@@ -77,6 +79,7 @@ paths:
       summary: Lists all projects of a user
   /projects/create:
     post:
+      description: Create project
       parameters:
       - description: project name
         in: query
@@ -91,13 +94,167 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ok
-          schema:
-            type: string
+        "200": {}
       security:
       - ApiKeyAuth: []
       summary: Lists all projects of a user
+  /projects/removeUser:
+    post:
+      parameters:
+      - description: project id
+        in: query
+        name: projectid
+        required: true
+        type: string
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      security:
+      - ApiKeyAuth: []
+      summary: Removes a user from a project
+  /projects/wes/add:
+    post:
+      parameters:
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      - description: project id
+        in: query
+        name: projectid
+        required: true
+        type: string
+      - description: endpoint name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: wes link
+        in: query
+        name: link
+        required: true
+        type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 'Creates a new user if none exists; not intended for production use:
+        In production users are dynamically created based on external oauth2/oidc
+        ids'
+  /projects/wes/list:
+    get:
+      parameters:
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      - description: project id
+        in: query
+        name: projectid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.WESEndpoint'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: 'Creates a new user if none exists; not intended for production use:
+        In production users are dynamically created based on external oauth2/oidc
+        ids'
+  /projects/workflows/add:
+    post:
+      parameters:
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      - description: project id
+        in: query
+        name: projectid
+        required: true
+        type: string
+      - description: workflow name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: workflow link
+        in: query
+        name: link
+        required: true
+        type: string
+      - description: workflow version
+        in: query
+        name: version
+        required: true
+        type: string
+      responses:
+        "200": {}
+      security:
+      - ApiKeyAuth: []
+      summary: 'Creates a new user if none exists; not intended for production use:
+        In production users are dynamically created based on external oauth2/oidc
+        ids'
+  /projects/workflows/get:
+    get:
+      parameters:
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      - description: project id
+        in: query
+        name: projectid
+        required: true
+        type: string
+      - description: workflow id
+        in: query
+        name: workflowID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Workflow'
+      security:
+      - ApiKeyAuth: []
+      summary: Returns all workflows of a given project
+  /projects/workflows/list:
+    get:
+      parameters:
+      - description: user id
+        in: query
+        name: userid
+        required: true
+        type: string
+      - description: project id
+        in: query
+        name: projectid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Workflow'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Returns all workflows of a given project
   /users/create:
     post:
       parameters:
@@ -113,7 +270,9 @@ paths:
         type: string
       security:
       - ApiKeyAuth: []
-      summary: Creates a new user if none exists
+      summary: 'Creates a new user if none exists; not intended for production use:
+        In production users are dynamically created based on external oauth2/oidc
+        ids'
 securityDefinitions:
   ApiKeyAuth:
     in: header

@@ -1,33 +1,47 @@
 package persistence
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
+	"os"
 
-	"github.com/jinzhu/gorm"
+	"github.com/volatiletech/sqlboiler/boil"
 )
 
 // DatabaseHandler Used to hold and initialize the database connection via GORM
 type DatabaseHandler struct {
-	Database *gorm.DB
+	DB *sql.DB
 }
 
-// InitSQLite Initiates a database handler using SQLite
-// path Path to store the database
-func (handler *DatabaseHandler) InitSQLite(path string) error {
-	db, err := gorm.Open("sqlite3", path)
+//InitSQL Initiliazes an SQL session
+func (handler *DatabaseHandler) InitSQL() error {
+	dbUsername := "root"
+	dbPassword := "test123"
+	dbHost := "localhost"
+
+	if username := os.Getenv("dbUsername"); username != "" {
+		dbUsername = username
+	}
+
+	if password := os.Getenv("dbPassword"); password != "" {
+		dbPassword = password
+	}
+
+	if host := os.Getenv("dbHost"); host != "" {
+		dbHost = host
+	}
+
+	dbConnectionString := fmt.Sprintf("%s:%s@tcp(%s:3306)/cwlab?charset=utf8&parseTime=True&loc=Local",
+		dbUsername, dbPassword, dbHost)
+
+	db, err := sql.Open("mysql", dbConnectionString)
 	if err != nil {
 		log.Println(err.Error())
-		return err
+		return fmt.Errorf("Error while connecting to database")
 	}
 
-	handler.Database = db
-	handler.handleMigrations()
-
+	handler.DB = db
+	boil.SetDB(db)
 	return nil
-}
-
-func (handler *DatabaseHandler) handleMigrations() {
-	if err := handler.Database.AutoMigrate(&User{}, &Project{}, &WorkflowRun{}, &Right{}, &Role{}, &ProjectUser{}).Error; err != nil {
-		log.Fatalln(err)
-	}
 }

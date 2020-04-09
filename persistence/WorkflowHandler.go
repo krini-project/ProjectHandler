@@ -1,64 +1,60 @@
 package persistence
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"time"
+
+	"github.com/krini-project/ProjectHandler/models"
+	"github.com/volatiletech/null"
+	"github.com/volatiletech/sqlboiler/boil"
 )
 
-// UpdateWorkflowRunFinish Updates the status of a workflow run
-func (handler *DatabaseHandler) UpdateWorkflowRunFinish(workflowRunID uint, resultBucket string, resultKey string) error {
-	run := WorkflowRun{}
-	if err := handler.Database.First(&run, workflowRunID).Error; err != nil {
+//AddWorkflow Adds a workflow to a project
+func (handler *DatabaseHandler) AddWorkflow(projectid string, userid string, name string, link string, version string) error {
+	workflow := models.Workflow{
+		Link:         link,
+		Workflowname: name,
+		ProjectID:    projectid,
+		Version:      null.NewString(version, true),
+	}
+
+	if err := workflow.Insert(context.TODO(), handler.DB, boil.Infer()); err != nil {
 		log.Println(err.Error())
 		return err
 	}
 
-	run.State = fmt.Sprintf("%v", Finished)
-	run.ResultBucket = resultBucket
-	run.ResultKey = resultKey
-
-	handler.Database.Save(&run)
 	return nil
 }
 
-// UpdateWorkflowRunWithError Updates the status of a workflow run
-func (handler *DatabaseHandler) UpdateWorkflowRunWithError(workflowRunID uint, errorString string) error {
-	run := WorkflowRun{}
-	if err := handler.Database.First(&run, workflowRunID).Error; err != nil {
+//GetWorkflow Retrives the informations about a workflow of a project
+func (handler *DatabaseHandler) GetWorkflow(id int, projectid string, userid string) (*models.Workflow, error) {
+	workflow, err := models.FindWorkflow(context.TODO(), handler.DB, id)
+	if err != nil {
 		log.Println(err.Error())
-		return err
+		return nil, err
 	}
 
-	run.State = fmt.Sprintf("%v", Error)
-	run.Error = errorString
-
-	handler.Database.Save(run)
-	return nil
+	return workflow, nil
 }
 
-// CreateWorkflowRun Creates a new workflow run
-func (handler *DatabaseHandler) CreateWorkflowRun(projectID uint, workflowTemplateID string) error {
-	project := Project{}
-	handler.Database.First(project, projectID)
-	startTime := time.Now()
-
-	workflow := WorkflowRun{
-		Project:      project,
-		StartTime:    startTime,
-		EndTime:      startTime,
-		State:        fmt.Sprintf("%v", Running),
-		HasError:     false,
-		HasResult:    false,
-		Error:        "",
-		ResultBucket: "",
-		ResultKey:    "",
-	}
-
-	if err := handler.Database.Create(&workflow).Error; err != nil {
+//ListWorkflows Lists all workflows of a given projects
+func (handler *DatabaseHandler) ListWorkflows(projectid string, userid string) ([]*models.Workflow, error) {
+	project, err := models.FindProject(context.TODO(), handler.DB, projectid)
+	if err != nil {
 		log.Println(err.Error())
-		return err
+		return nil, err
 	}
 
-	return nil
+	workflowSlice, err := project.Workflows().All(context.TODO(), handler.DB)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	var workflows []*models.Workflow
+	for _, workflow := range workflowSlice {
+		workflows = append(workflows, workflow)
+	}
+
+	return workflows, nil
 }
