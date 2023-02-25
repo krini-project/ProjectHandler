@@ -16,6 +16,5 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.5
-	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
-	golang.org/x/tools v0.0.0-20200326210457-5d86d385bf88 // indirect
+	golang.org/x/net v0.7.0 // indirect
 )
